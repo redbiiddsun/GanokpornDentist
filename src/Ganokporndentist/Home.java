@@ -11,7 +11,11 @@ import Ganokporndentist.lib.*;
 import java.awt.CardLayout;
 import java.awt.HeadlessException;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Date;
+import java.util.HashMap;
 import javax.swing.JOptionPane;
 
 /**
@@ -24,42 +28,220 @@ public class Home extends javax.swing.JFrame {
      * Creates new form Home
      */
     CardLayout cardLayout;
+    HashMap<String, Integer> HashMapcmbUser = new HashMap<String, Integer>();
+    HashMap<String, Integer> HashMapcmbEPD = new HashMap<String, Integer>();
+    HashMap<String, Integer> HashMapcmbAPatient = new HashMap<String, Integer>();
+    HashMap<String, Integer> HashMapcmbADoctor = new HashMap<String, Integer>();
+    HashMap<String, Integer> HashMapcmbAEPD = new HashMap<String, Integer>();
+    
     public Home() {
         initComponents();
         cardLayout = (CardLayout)(pnlCards.getLayout());
         btnOverview.doClick();
         DBconnection.getConnection();
+        getComboBox();
+        cmbEAPatient();
+        cmbAPatient();
+        cmbADoctor();
+        countP();
+        countD();
+        countA();
 
+    }
+    
+    
+    public void countP(){
+        
+        String i;
+        
+        
+        
+        
+        try {
+           Statement st = DBconnection.getConnection().createStatement();
+           ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM patient" );
+           
+           while(rs.next())
+           {
+               i = rs.getString(1);
+               lblP.setText(i);
+           }
+        } catch (Exception e) {
+           e.printStackTrace();
+        }
+        
+    }
+    
+    public void countD(){
+        
+        String ii;
+        
+        try {
+           Statement st = DBconnection.getConnection().createStatement();
+           ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM doctor" );
+           
+           while(rs.next())
+           {
+               ii = rs.getString(1);
+               lblD.setText(ii);
+           }
+        } catch (Exception e) {
+           e.printStackTrace();
+        }
+        
+    }
+    
+    public void countA(){
+        
+        String iii;
+        
+        
+        
+        
+        try {
+           Statement st = DBconnection.getConnection().createStatement();
+           ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM reserve" );
+           
+           while(rs.next())
+           {
+               iii = rs.getString(1);
+               lblA.setText(iii);
+           }
+        } catch (Exception e) {
+           e.printStackTrace();
+        }
+        
+    }
+    
+    public void cmbEAPatient(){
+        cmbAList.addItem("");
+        
+        try {
+           Statement st = DBconnection.getConnection().createStatement();
+           ResultSet rs = st.executeQuery("SELECT reserve.reserve_id, patient.National_ID, doctor.Firstname, reserve.Date FROM ((reserve INNER JOIN doctor ON reserve.Doctor_ID = doctor.Doctor_ID) INNER JOIN patient ON patient.Patient_ID = patient.Patient_ID)");
+           
+           while(rs.next())
+           {
+               String Name = rs.getString(2) + " " + rs.getString(4);
+               int ID = rs.getInt(1);
+               HashMapcmbAEPD.put(Name, ID);
+               cmbAList.addItem(Name);
+               
+           }
+        } catch (Exception e) {
+           e.printStackTrace();
+        }
+        
+    }
+    
+    public void cmbAPatient(){
+        cmbAPatient.addItem("");
+        //String selection = (String) cmbCatagorie.getSelectedItem();
+        
+        try {
+           Statement st = DBconnection.getConnection().createStatement();
+           ResultSet rs = st.executeQuery("SELECT * FROM  `patient` ");
+           
+           while(rs.next())
+           {
+               String Name = rs.getString(3) + " " + rs.getString(4);
+               int ID = rs.getInt(1);
+               HashMapcmbAPatient.put(Name, ID);
+               cmbAPatient.addItem(Name);
+               //cmbEAPatient.addItem(Name);
+               
+           }
+        } catch (Exception e) {
+           e.printStackTrace();
+        }
+        
+    }
+        public void cmbADoctor(){
+        cmbADoctor.addItem("");
+        //String selection = (String) cmbCatagorie.getSelectedItem();
+        
+        try {
+           Statement st = DBconnection.getConnection().createStatement();
+           ResultSet rs = st.executeQuery("SELECT * FROM  `doctor` ");
+           
+           while(rs.next())
+           {
+               String Name = rs.getString(3) + " " + rs.getString(4);
+               int ID = rs.getInt(1);
+               HashMapcmbADoctor.put(Name, ID);
+               cmbADoctor.addItem(Name);
+               //qqqcmbEADoctor.addItem(Name);
+           }
+        } catch (Exception e) {
+           e.printStackTrace();
+        }
+        
     }
     
     public boolean checkRegistertext(){
         
-        return !(txtFirstname.equals("") 
-                || txtLastname.equals("")
-                || txtEmail.equals("")
-                || txtPassword.equals("")); 
+        return !(txtFirstname.getText().equals("")
+                || txtLastname.getText().equals("")
+                || txtEmail.getText().equals("")
+                || txtPassword.getPassword().equals(""));
     }
     public boolean checkDoctorRegistertext(){
         
-        return !(txtDoctorFirstname.equals("") 
-                || txtDoctorLastname.equals("")
-                || txtDoctorPhone.equals("")
-                || txtDoctorNationalID.equals("")
-                || txtDoctorAdresses.equals("")); 
+        return !(txtDoctorFirstname.getText().equals("")
+                || txtDoctorLastname.getText().equals("")
+                || txtDoctorPhone.getText().equals("")
+                || txtDoctorNationalID.getText().equals("")
+                || txtDoctorAdresses.getText().equals("")); 
     }
     
     public boolean checkEdittext(){
         
-        return !(txtEFirstname.equals("") 
-                || txtELastname.equals("")
-                || txtEEmail.equals("")); 
+        return !(txtEFirstname.getText().equals("")
+                || txtELastname.getText().equals("")
+                || txtEEmail.getText().equals("")); 
+    }
+    
+    public boolean checkPatientRegistertext(){
+        
+        return !(txtPatientFirstname.getText().equals("")
+                || txtPatientLastname.getText().equals("")
+                || txtPatientAddress.getText().equals("")
+                || txtPatientPhone.getText().equals("")
+                || txtPatientNationalID.getText().equals(""));
+    }
+    
+    public boolean checkEPDtext(){
+        
+        return !(txtEPDFirstname.getText().equals("")
+                || txtEPDLastname.getText().equals("")
+                || txtEPDPhone.getText().equals("")
+                || txtEPDNationalID.getText().equals("")
+                || txtEPDAddress.getText().equals(""));
     }
     
     public void getComboBox(){
         
         cmbUser.addItem("");
         
+        try {
+           Statement st = DBconnection.getConnection().createStatement();
+           ResultSet rs = st.executeQuery("SELECT * FROM  `user` ");
+           
+           while(rs.next())
+           {
+               String Email = rs.getString(2);
+               int userID = rs.getInt(1);
+               HashMapcmbUser.put(Email, userID);
+               cmbUser.addItem(Email);
+               
+           }
+        } catch (Exception e) {
+           e.printStackTrace();
+        }
     }
+    
+    
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -82,19 +264,20 @@ public class Home extends javax.swing.JFrame {
         btnMinimize = new keeptoo.KButton();
         kButton9 = new keeptoo.KButton();
         btnDoctor = new keeptoo.KButton();
+        btnEditPD = new keeptoo.KButton();
         pnlCards = new javax.swing.JPanel();
         Overview = new javax.swing.JPanel();
         kGradientPanel1 = new keeptoo.KGradientPanel();
         jLabel9 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
+        lblD = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         kGradientPanel2 = new keeptoo.KGradientPanel();
         jLabel4 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
+        lblP = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         kGradientPanel3 = new keeptoo.KGradientPanel();
         jLabel5 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
+        lblA = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         Patient = new javax.swing.JPanel();
@@ -120,7 +303,6 @@ public class Home extends javax.swing.JFrame {
         kGradientPanel16 = new keeptoo.KGradientPanel();
         btnPatientSearch = new keeptoo.KButton();
         btnPatientRegister = new keeptoo.KButton();
-        Appointment = new javax.swing.JPanel();
         User = new javax.swing.JPanel();
         kGradientPanel6 = new keeptoo.KGradientPanel();
         txtELastname = new javax.swing.JTextField();
@@ -182,26 +364,50 @@ public class Home extends javax.swing.JFrame {
         jLabel34 = new javax.swing.JLabel();
         txtEmail3 = new javax.swing.JTextField();
         jLabel35 = new javax.swing.JLabel();
-        txtPatientFirstname1 = new javax.swing.JTextField();
+        txtEPDFirstname = new javax.swing.JTextField();
         kGradientPanel17 = new keeptoo.KGradientPanel();
         jLabel36 = new javax.swing.JLabel();
-        txtPatientLastname1 = new javax.swing.JTextField();
+        txtEPDLastname = new javax.swing.JTextField();
         kGradientPanel18 = new keeptoo.KGradientPanel();
         jLabel37 = new javax.swing.JLabel();
-        txtPatientPhone1 = new javax.swing.JTextField();
+        txtEPDPhone = new javax.swing.JTextField();
         kGradientPanel19 = new keeptoo.KGradientPanel();
         jLabel38 = new javax.swing.JLabel();
         kGradientPanel20 = new keeptoo.KGradientPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea2 = new javax.swing.JTextArea();
+        txtEPDAddress = new javax.swing.JTextArea();
         jLabel47 = new javax.swing.JLabel();
-        txtPatientNationalID1 = new javax.swing.JTextField();
+        txtEPDNationalID = new javax.swing.JTextField();
         kGradientPanel21 = new keeptoo.KGradientPanel();
         btnEditRegister = new keeptoo.KButton();
-        ComboCatagorie = new javax.swing.JComboBox<>();
-        ComboItem = new javax.swing.JComboBox<>();
-        kButton1 = new keeptoo.KButton();
-        kButton2 = new keeptoo.KButton();
+        cmbCatagorie = new javax.swing.JComboBox<>();
+        cmbList = new javax.swing.JComboBox<>();
+        btnEditSelect = new keeptoo.KButton();
+        btnEPDSearch = new keeptoo.KButton();
+        btnEPDClear = new keeptoo.KButton();
+        Appointment = new javax.swing.JPanel();
+        jLabell = new javax.swing.JLabel();
+        jLabel48 = new javax.swing.JLabel();
+        jLabel49 = new javax.swing.JLabel();
+        jLabel50 = new javax.swing.JLabel();
+        cmbAPatient = new javax.swing.JComboBox<>();
+        jLabel51 = new javax.swing.JLabel();
+        cmbADoctor = new javax.swing.JComboBox<>();
+        jLabel52 = new javax.swing.JLabel();
+        jDateChooser1 = new com.toedter.calendar.JDateChooser();
+        btnAConfirm = new keeptoo.KButton();
+        btnASearch = new keeptoo.KButton();
+        jLabel53 = new javax.swing.JLabel();
+        jLabel54 = new javax.swing.JLabel();
+        jLabel55 = new javax.swing.JLabel();
+        cmbEAPatient = new javax.swing.JComboBox<>();
+        jLabel56 = new javax.swing.JLabel();
+        cmbEADoctor = new javax.swing.JComboBox<>();
+        jLabel57 = new javax.swing.JLabel();
+        jDateChooser2 = new com.toedter.calendar.JDateChooser();
+        btnAConfirm1 = new keeptoo.KButton();
+        btnEASearch = new keeptoo.KButton();
+        cmbAList = new javax.swing.JComboBox<>();
 
         javax.swing.GroupLayout jLayeredPane1Layout = new javax.swing.GroupLayout(jLayeredPane1);
         jLayeredPane1.setLayout(jLayeredPane1Layout);
@@ -299,6 +505,11 @@ public class Home extends javax.swing.JFrame {
         btnPatient.setkHoverForeGround(new java.awt.Color(255, 255, 255));
         btnPatient.setkIndicatorColor(new java.awt.Color(192, 192, 192));
         btnPatient.setkSelectedColor(new java.awt.Color(192, 192, 192));
+        btnPatient.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPatientActionPerformed(evt);
+            }
+        });
 
         btnExit.setText("X");
         btnExit.setkAllowGradient(false);
@@ -355,25 +566,50 @@ public class Home extends javax.swing.JFrame {
             }
         });
 
+        btnEditPD.setText("Edit Patient/Doctor");
+        btnEditPD.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
+        btnEditPD.setkAllowGradient(false);
+        btnEditPD.setkAllowTab(true);
+        btnEditPD.setkBackGroundColor(new java.awt.Color(230, 212, 241));
+        btnEditPD.setkBorderRadius(0);
+        btnEditPD.setkHoverColor(new java.awt.Color(192, 192, 192));
+        btnEditPD.setkHoverForeGround(new java.awt.Color(255, 255, 255));
+        btnEditPD.setkIndicatorColor(new java.awt.Color(192, 192, 192));
+        btnEditPD.setkSelectedColor(new java.awt.Color(192, 192, 192));
+        btnEditPD.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnEditPDMouseClicked(evt);
+            }
+        });
+        btnEditPD.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditPDActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout MenuLayout = new javax.swing.GroupLayout(Menu);
         Menu.setLayout(MenuLayout);
         MenuLayout.setHorizontalGroup(
             MenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(MenuLayout.createSequentialGroup()
-                .addGap(17, 17, 17)
-                .addComponent(btnExit, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(btnMinimize, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(kButton9, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(MenuLayout.createSequentialGroup()
-                .addGap(100, 100, 100)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addComponent(btnOverview, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(btnPatient, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(btnAppointment, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(btnDoctor, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(btnUser, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(MenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(MenuLayout.createSequentialGroup()
+                        .addGap(17, 17, 17)
+                        .addComponent(btnExit, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnMinimize, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(kButton9, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(MenuLayout.createSequentialGroup()
+                        .addGap(100, 100, 100)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnOverview, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnPatient, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnAppointment, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnDoctor, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnUser, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnEditPD, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         MenuLayout.setVerticalGroup(
             MenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -395,7 +631,9 @@ public class Home extends javax.swing.JFrame {
                 .addComponent(btnDoctor, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(9, 9, 9)
                 .addComponent(btnUser, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(211, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnEditPD, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(126, Short.MAX_VALUE))
         );
 
         jSplitPane1.setLeftComponent(Menu);
@@ -412,9 +650,9 @@ public class Home extends javax.swing.JFrame {
         jLabel9.setForeground(new java.awt.Color(255, 255, 255));
         jLabel9.setText("Doctor");
 
-        jLabel10.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel10.setText("0");
+        lblD.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        lblD.setForeground(new java.awt.Color(255, 255, 255));
+        lblD.setText("0");
 
         jLabel11.setForeground(new java.awt.Color(255, 255, 255));
         jLabel11.setText("People");
@@ -425,7 +663,7 @@ public class Home extends javax.swing.JFrame {
             kGradientPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, kGradientPanel1Layout.createSequentialGroup()
                 .addContainerGap(123, Short.MAX_VALUE)
-                .addComponent(jLabel10)
+                .addComponent(lblD)
                 .addGap(115, 115, 115))
             .addGroup(kGradientPanel1Layout.createSequentialGroup()
                 .addGap(26, 26, 26)
@@ -440,7 +678,7 @@ public class Home extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jLabel9)
                 .addGap(18, 18, 18)
-                .addComponent(jLabel10)
+                .addComponent(lblD)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel11)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -454,9 +692,9 @@ public class Home extends javax.swing.JFrame {
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("Patient");
 
-        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel6.setText("0");
+        lblP.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        lblP.setForeground(new java.awt.Color(255, 255, 255));
+        lblP.setText("0");
 
         jLabel7.setForeground(new java.awt.Color(255, 255, 255));
         jLabel7.setText("People");
@@ -469,7 +707,7 @@ public class Home extends javax.swing.JFrame {
                 .addGroup(kGradientPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(kGradientPanel2Layout.createSequentialGroup()
                         .addGap(104, 104, 104)
-                        .addComponent(jLabel6))
+                        .addComponent(lblP))
                     .addGroup(kGradientPanel2Layout.createSequentialGroup()
                         .addGap(29, 29, 29)
                         .addGroup(kGradientPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -483,7 +721,7 @@ public class Home extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jLabel4)
                 .addGap(18, 18, 18)
-                .addComponent(jLabel6)
+                .addComponent(lblP)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
                 .addComponent(jLabel7)
                 .addContainerGap())
@@ -495,11 +733,11 @@ public class Home extends javax.swing.JFrame {
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel5.setText("Today Appointment");
+        jLabel5.setText("Total Appointment");
 
-        jLabel8.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel8.setText("0");
+        lblA.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
+        lblA.setForeground(new java.awt.Color(255, 255, 255));
+        lblA.setText("0");
 
         javax.swing.GroupLayout kGradientPanel3Layout = new javax.swing.GroupLayout(kGradientPanel3);
         kGradientPanel3.setLayout(kGradientPanel3Layout);
@@ -512,7 +750,7 @@ public class Home extends javax.swing.JFrame {
                         .addComponent(jLabel5))
                     .addGroup(kGradientPanel3Layout.createSequentialGroup()
                         .addGap(108, 108, 108)
-                        .addComponent(jLabel8)))
+                        .addComponent(lblA)))
                 .addContainerGap(108, Short.MAX_VALUE))
         );
         kGradientPanel3Layout.setVerticalGroup(
@@ -521,7 +759,7 @@ public class Home extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jLabel5)
                 .addGap(18, 18, 18)
-                .addComponent(jLabel8)
+                .addComponent(lblA)
                 .addContainerGap(42, Short.MAX_VALUE))
         );
 
@@ -550,7 +788,7 @@ public class Home extends javax.swing.JFrame {
                     .addGroup(OverviewLayout.createSequentialGroup()
                         .addGap(321, 321, 321)
                         .addComponent(jLabel3)))
-                .addContainerGap(54, Short.MAX_VALUE))
+                .addContainerGap(61, Short.MAX_VALUE))
         );
         OverviewLayout.setVerticalGroup(
             OverviewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -799,21 +1037,6 @@ public class Home extends javax.swing.JFrame {
         );
 
         pnlCards.add(Patient, "Patient");
-
-        Appointment.setBackground(new java.awt.Color(255, 255, 255));
-
-        javax.swing.GroupLayout AppointmentLayout = new javax.swing.GroupLayout(Appointment);
-        Appointment.setLayout(AppointmentLayout);
-        AppointmentLayout.setHorizontalGroup(
-            AppointmentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 965, Short.MAX_VALUE)
-        );
-        AppointmentLayout.setVerticalGroup(
-            AppointmentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 833, Short.MAX_VALUE)
-        );
-
-        pnlCards.add(Appointment, "Appointment");
 
         User.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -1152,10 +1375,10 @@ public class Home extends javax.swing.JFrame {
 
         jLabel40.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel40.setForeground(new java.awt.Color(153, 153, 153));
-        jLabel40.setText("Sign Up for New Patient");
+        jLabel40.setText("Sign Up for New Doctor");
 
         jLabel41.setForeground(new java.awt.Color(153, 153, 153));
-        jLabel41.setText("For a non-exiting Patient ");
+        jLabel41.setText("For a non-exiting Doctor");
 
         txtEmail2.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         txtEmail2.setForeground(new java.awt.Color(153, 153, 153));
@@ -1353,7 +1576,7 @@ public class Home extends javax.swing.JFrame {
                 .addContainerGap(213, Short.MAX_VALUE))
         );
 
-        pnlCards.add(Doctor, "Patient");
+        pnlCards.add(Doctor, "Doctor");
 
         EditPatient.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -1374,9 +1597,9 @@ public class Home extends javax.swing.JFrame {
         jLabel35.setForeground(new java.awt.Color(153, 153, 153));
         jLabel35.setText("firstname");
 
-        txtPatientFirstname1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        txtPatientFirstname1.setForeground(new java.awt.Color(153, 153, 153));
-        txtPatientFirstname1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        txtEPDFirstname.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        txtEPDFirstname.setForeground(new java.awt.Color(153, 153, 153));
+        txtEPDFirstname.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
         javax.swing.GroupLayout kGradientPanel17Layout = new javax.swing.GroupLayout(kGradientPanel17);
         kGradientPanel17.setLayout(kGradientPanel17Layout);
@@ -1392,9 +1615,9 @@ public class Home extends javax.swing.JFrame {
         jLabel36.setForeground(new java.awt.Color(153, 153, 153));
         jLabel36.setText("lastname");
 
-        txtPatientLastname1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        txtPatientLastname1.setForeground(new java.awt.Color(153, 153, 153));
-        txtPatientLastname1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        txtEPDLastname.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        txtEPDLastname.setForeground(new java.awt.Color(153, 153, 153));
+        txtEPDLastname.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
         javax.swing.GroupLayout kGradientPanel18Layout = new javax.swing.GroupLayout(kGradientPanel18);
         kGradientPanel18.setLayout(kGradientPanel18Layout);
@@ -1410,9 +1633,9 @@ public class Home extends javax.swing.JFrame {
         jLabel37.setForeground(new java.awt.Color(153, 153, 153));
         jLabel37.setText("Phone no.");
 
-        txtPatientPhone1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        txtPatientPhone1.setForeground(new java.awt.Color(153, 153, 153));
-        txtPatientPhone1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        txtEPDPhone.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        txtEPDPhone.setForeground(new java.awt.Color(153, 153, 153));
+        txtEPDPhone.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
         javax.swing.GroupLayout kGradientPanel19Layout = new javax.swing.GroupLayout(kGradientPanel19);
         kGradientPanel19.setLayout(kGradientPanel19Layout);
@@ -1439,17 +1662,17 @@ public class Home extends javax.swing.JFrame {
             .addGap(0, 8, Short.MAX_VALUE)
         );
 
-        jTextArea2.setColumns(20);
-        jTextArea2.setFont(new java.awt.Font("Monospaced", 0, 18)); // NOI18N
-        jTextArea2.setRows(5);
-        jScrollPane2.setViewportView(jTextArea2);
+        txtEPDAddress.setColumns(20);
+        txtEPDAddress.setFont(new java.awt.Font("Monospaced", 0, 18)); // NOI18N
+        txtEPDAddress.setRows(5);
+        jScrollPane2.setViewportView(txtEPDAddress);
 
         jLabel47.setForeground(new java.awt.Color(153, 153, 153));
         jLabel47.setText("National ID ");
 
-        txtPatientNationalID1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        txtPatientNationalID1.setForeground(new java.awt.Color(153, 153, 153));
-        txtPatientNationalID1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        txtEPDNationalID.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        txtEPDNationalID.setForeground(new java.awt.Color(153, 153, 153));
+        txtEPDNationalID.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
         javax.swing.GroupLayout kGradientPanel21Layout = new javax.swing.GroupLayout(kGradientPanel21);
         kGradientPanel21.setLayout(kGradientPanel21Layout);
@@ -1470,13 +1693,28 @@ public class Home extends javax.swing.JFrame {
             }
         });
 
-        ComboCatagorie.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Patient", "Doctor" }));
+        cmbCatagorie.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "patient", "doctor" }));
 
-        ComboItem.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        btnEditSelect.setText("Confirm");
+        btnEditSelect.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditSelectActionPerformed(evt);
+            }
+        });
 
-        kButton1.setText("Confirm");
+        btnEPDSearch.setText("Search");
+        btnEPDSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEPDSearchActionPerformed(evt);
+            }
+        });
 
-        kButton2.setText("Search");
+        btnEPDClear.setText("Clear");
+        btnEPDClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEPDClearActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout EditPatientLayout = new javax.swing.GroupLayout(EditPatient);
         EditPatient.setLayout(EditPatientLayout);
@@ -1487,42 +1725,47 @@ public class Home extends javax.swing.JFrame {
                 .addGroup(EditPatientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(EditPatientLayout.createSequentialGroup()
                         .addGroup(EditPatientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel35)
-                            .addComponent(txtPatientFirstname1, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(kGradientPanel17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel37)
-                            .addComponent(txtPatientPhone1, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(kGradientPanel19, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel38)
-                            .addGroup(EditPatientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(kGradientPanel20, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(EditPatientLayout.createSequentialGroup()
                                 .addGap(287, 287, 287)
                                 .addComponent(jLabel32))
                             .addGroup(EditPatientLayout.createSequentialGroup()
-                                .addComponent(ComboCatagorie, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(cmbCatagorie, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(33, 33, 33)
-                                .addComponent(kButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jLabel33)
+                                .addComponent(btnEditSelect, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(EditPatientLayout.createSequentialGroup()
+                                .addComponent(jLabel33)
+                                .addGap(43, 43, 43)
+                                .addComponent(btnEPDClear, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jLabel34)
-                            .addComponent(txtEmail3, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 179, Short.MAX_VALUE)
+                            .addComponent(txtEmail3, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(EditPatientLayout.createSequentialGroup()
+                                .addComponent(cmbList, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(40, 40, 40)
+                                .addComponent(btnEPDSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addContainerGap(471, Short.MAX_VALUE))
+                    .addGroup(EditPatientLayout.createSequentialGroup()
+                        .addGroup(EditPatientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel35)
+                            .addComponent(txtEPDFirstname, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(kGradientPanel17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel37)
+                            .addComponent(txtEPDPhone, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(kGradientPanel19, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel38)
+                            .addGroup(EditPatientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(kGradientPanel20, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(EditPatientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, EditPatientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(jLabel36)
-                                .addComponent(txtPatientLastname1, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(txtEPDLastname, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(kGradientPanel18, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jLabel47)
                                 .addComponent(kGradientPanel21, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(btnEditRegister, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(txtPatientNationalID1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(EditPatientLayout.createSequentialGroup()
-                        .addComponent(ComboItem, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(40, 40, 40)
-                        .addComponent(kButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                            .addComponent(txtEPDNationalID, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(146, 146, 146))))
         );
         EditPatientLayout.setVerticalGroup(
             EditPatientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1531,59 +1774,222 @@ public class Home extends javax.swing.JFrame {
                 .addComponent(jLabel32)
                 .addGap(21, 21, 21)
                 .addGroup(EditPatientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(ComboCatagorie, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(kButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addComponent(cmbCatagorie, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnEditSelect, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addGap(41, 41, 41)
                 .addGroup(EditPatientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(ComboItem, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(kButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addComponent(cmbList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnEPDSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addGap(99, 99, 99)
-                .addComponent(jLabel33)
-                .addGap(7, 7, 7)
+                .addGroup(EditPatientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel33)
+                    .addComponent(btnEPDClear, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addGap(5, 5, 5)
                 .addComponent(jLabel34)
                 .addGap(31, 31, 31)
                 .addGroup(EditPatientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(EditPatientLayout.createSequentialGroup()
-                        .addGroup(EditPatientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(EditPatientLayout.createSequentialGroup()
-                                .addComponent(jLabel35)
-                                .addGap(18, 18, 18)
-                                .addComponent(txtPatientFirstname1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(1, 1, 1)
-                                .addComponent(kGradientPanel17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(EditPatientLayout.createSequentialGroup()
-                                .addComponent(jLabel36)
-                                .addGap(18, 18, 18)
-                                .addComponent(txtPatientLastname1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(1, 1, 1)
-                                .addComponent(kGradientPanel18, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jLabel35)
                         .addGap(18, 18, 18)
-                        .addGroup(EditPatientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(EditPatientLayout.createSequentialGroup()
-                                .addComponent(jLabel37)
-                                .addGap(18, 18, 18)
-                                .addComponent(txtPatientPhone1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(1, 1, 1)
-                                .addComponent(kGradientPanel19, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(EditPatientLayout.createSequentialGroup()
-                                .addComponent(jLabel47)
-                                .addGap(18, 18, 18)
-                                .addComponent(txtPatientNationalID1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(1, 1, 1)
-                                .addComponent(kGradientPanel21, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(txtEPDFirstname, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(1, 1, 1)
+                        .addComponent(kGradientPanel17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel37)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtEPDPhone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(1, 1, 1)
+                        .addComponent(kGradientPanel19, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(26, 26, 26)
                         .addComponent(jLabel38)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(kGradientPanel20, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(EditPatientLayout.createSequentialGroup()
+                        .addComponent(jLabel36)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtEPDLastname, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(1, 1, 1)
+                        .addComponent(kGradientPanel18, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel47)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtEPDNationalID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(1, 1, 1)
+                        .addComponent(kGradientPanel21, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(135, 135, 135))
                     .addComponent(btnEditRegister, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtEmail3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(99, Short.MAX_VALUE))
         );
 
-        pnlCards.add(EditPatient, "Patient");
+        pnlCards.add(EditPatient, "EditPD");
+
+        Appointment.setBackground(new java.awt.Color(255, 255, 255));
+
+        jLabell.setFont(new java.awt.Font("Times New Roman", 1, 48)); // NOI18N
+        jLabell.setText("Appointment");
+
+        jLabel48.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel48.setForeground(new java.awt.Color(153, 153, 153));
+        jLabel48.setText("New Appointment");
+
+        jLabel49.setForeground(new java.awt.Color(153, 153, 153));
+        jLabel49.setText("For a non-exiting appointment ");
+
+        jLabel50.setForeground(new java.awt.Color(153, 153, 153));
+        jLabel50.setText("Patient");
+
+        jLabel51.setForeground(new java.awt.Color(153, 153, 153));
+        jLabel51.setText("Doctor");
+
+        jLabel52.setForeground(new java.awt.Color(153, 153, 153));
+        jLabel52.setText("Date");
+
+        btnAConfirm.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/icons8_add_user_male_64px.png"))); // NOI18N
+        btnAConfirm.setText("Confirm");
+        btnAConfirm.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAConfirmActionPerformed(evt);
+            }
+        });
+
+        btnASearch.setText("Search");
+        btnASearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnASearchActionPerformed(evt);
+            }
+        });
+
+        jLabel53.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel53.setForeground(new java.awt.Color(153, 153, 153));
+        jLabel53.setText("Exiting Appointment");
+
+        jLabel54.setForeground(new java.awt.Color(153, 153, 153));
+        jLabel54.setText("For a exiting appointment ");
+
+        jLabel55.setForeground(new java.awt.Color(153, 153, 153));
+        jLabel55.setText("Patient");
+
+        jLabel56.setForeground(new java.awt.Color(153, 153, 153));
+        jLabel56.setText("Doctor");
+
+        jLabel57.setForeground(new java.awt.Color(153, 153, 153));
+        jLabel57.setText("Date");
+
+        btnAConfirm1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/icons8_add_user_male_64px.png"))); // NOI18N
+        btnAConfirm1.setText("Confirm");
+        btnAConfirm1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAConfirm1ActionPerformed(evt);
+            }
+        });
+
+        btnEASearch.setText("Search");
+        btnEASearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEASearchActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout AppointmentLayout = new javax.swing.GroupLayout(Appointment);
+        Appointment.setLayout(AppointmentLayout);
+        AppointmentLayout.setHorizontalGroup(
+            AppointmentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, AppointmentLayout.createSequentialGroup()
+                .addContainerGap(348, Short.MAX_VALUE)
+                .addComponent(jLabell)
+                .addGap(345, 345, 345))
+            .addGroup(AppointmentLayout.createSequentialGroup()
+                .addGap(150, 150, 150)
+                .addGroup(AppointmentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(AppointmentLayout.createSequentialGroup()
+                        .addComponent(btnAConfirm, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(44, 44, 44)
+                        .addComponent(btnASearch, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(AppointmentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jLabel52)
+                        .addComponent(cmbADoctor, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel51)
+                        .addComponent(jLabel50)
+                        .addComponent(jLabel48)
+                        .addComponent(jLabel49, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(cmbAPatient, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(AppointmentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnAConfirm1, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(AppointmentLayout.createSequentialGroup()
+                        .addGroup(AppointmentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(cmbAList, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel57, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(cmbEADoctor, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel56, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel55, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel53, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel54, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(cmbEAPatient, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jDateChooser2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(29, 29, 29)
+                        .addComponent(btnEASearch, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(42, 42, 42))
+        );
+        AppointmentLayout.setVerticalGroup(
+            AppointmentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(AppointmentLayout.createSequentialGroup()
+                .addGap(74, 74, 74)
+                .addComponent(jLabell)
+                .addGroup(AppointmentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(AppointmentLayout.createSequentialGroup()
+                        .addGap(123, 123, 123)
+                        .addComponent(jLabel48)
+                        .addGap(7, 7, 7)
+                        .addComponent(jLabel49)
+                        .addGap(27, 27, 27)
+                        .addGroup(AppointmentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel50)
+                            .addComponent(btnEASearch, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cmbAList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(AppointmentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(cmbAPatient, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnASearch, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel51)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cmbADoctor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel52)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(60, 60, 60)
+                        .addComponent(btnAConfirm, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, AppointmentLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 111, Short.MAX_VALUE)
+                        .addComponent(jLabel53)
+                        .addGap(7, 7, 7)
+                        .addComponent(jLabel54)
+                        .addGap(100, 100, 100)
+                        .addComponent(jLabel55)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cmbEAPatient, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel56)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cmbEADoctor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel57)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jDateChooser2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(60, 60, 60)
+                        .addComponent(btnAConfirm1, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(117, 117, 117))))
+        );
+
+        pnlCards.add(Appointment, "Appointment");
 
         jSplitPane1.setRightComponent(pnlCards);
 
@@ -1632,6 +2038,12 @@ public class Home extends javax.swing.JFrame {
         String Lastname = txtLastname.getText();
         String Email = txtEmail.getText();
         String Password = String.valueOf(txtPassword.getPassword());
+        
+        
+        //Check Method: checkRegistertext()
+        
+        //boolean i = checkRegistertext();
+        //System.out.println(i);
 
         if(checkRegistertext() == true){
             
@@ -1654,6 +2066,11 @@ public class Home extends javax.swing.JFrame {
             }
 
         }
+        else{
+            
+            JOptionPane.showMessageDialog(null, "Please fill the Registeration form", "Message", 2);
+
+         }
     }//GEN-LAST:event_btnUserRegisterActionPerformed
 
     private void btnUserMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnUserMouseClicked
@@ -1696,18 +2113,23 @@ public class Home extends javax.swing.JFrame {
 
             try{
 
-                PreparedStatement ps = DBconnection.con.prepareStatement("INSERT INTO `user` (`Firstname`, `Lastname`, `Phonenumber`, `National ID`, `Address`) VALUES (?,?,?,?,?)");
+                PreparedStatement ps = DBconnection.con.prepareStatement("INSERT INTO `doctor` (`National_ID`, `Firstname`, `Lastname`, `Phonenumber`, `Address`) VALUES (?,?,?,?,?)");
                 
-                
-                ps.setString(1,Firstname);
-                ps.setString(2,Lastname);
-                ps.setString(3,Phone);
-                ps.setInt(4, NationalID);
+                ps.setInt(1, NationalID);
+                ps.setString(2,Firstname);
+                ps.setString(3,Lastname);
+                ps.setString(4,Phone);
                 ps.setString(5,Address);
                 
                 int ii= ps.executeUpdate();
                 System.out.println(ii + " Doctor records affected"); // LOG
                 JOptionPane.showMessageDialog(null, "Your doctor registeration has been added. ", "Registration Completed (Doctor)", 2);
+                
+                txtDoctorFirstname.setText("");
+                txtDoctorLastname.setText("");
+                txtDoctorPhone.setText("");
+                txtDoctorAdresses.setText("");
+                txtDoctorNationalID.setText("");
 
             }catch(HeadlessException | SQLException e) {
                 e.printStackTrace();
@@ -1718,22 +2140,67 @@ public class Home extends javax.swing.JFrame {
 
     private void btnEditRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditRegisterActionPerformed
         // TODO add your handling code here:
+        
+        String selection2 = (String) cmbList.getSelectedItem();
+        String selection1 = (String) cmbCatagorie.getSelectedItem();
+        int ID = HashMapcmbEPD.get(selection2);
+        String StringID = String.valueOf(ID);
+        
+        if(checkEPDtext() == true){
+            
+            try {
+                
+                PreparedStatement ps = DBconnection.con.prepareStatement("UPDATE `"+ selection1 +"` SET `National_ID` =?, `Firstname` =?, `Lastname` =?, `Phonenumber` =?, `Address` =?  WHERE `"+selection1+"`.`National_ID` = " + StringID);
+
+                /*
+                txtEPDFirstname.getText().equals("")
+                || txtEPDLastname.getText().equals("")
+                || txtEPDPhone.getText().equals("")
+                || txtEPDNationalID.getText().equals("")
+                || txtEPDAddress.getText().equals(""));
+                */
+                
+                ps.setInt(1 , Integer. valueOf(txtEPDNationalID.getText()));
+                ps.setString(2 ,txtEPDFirstname.getText());
+                ps.setString(3 ,txtEPDLastname.getText());
+                ps.setString(4 ,txtEPDPhone.getText());
+                ps.setString(5 ,txtEPDAddress.getText());
+                
+                ps.executeUpdate();
+            
+                JOptionPane.showMessageDialog(null, selection2 + " information update completed. ", "Message", 2);
+                
+                txtEPDFirstname.setText("");
+                txtEPDLastname.setText("");
+                txtEPDPhone.setText("");
+                txtEPDNationalID.setText("");
+                txtEPDAddress.setText("");
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        else{
+            JOptionPane.showMessageDialog(null, "Please fill the form", "Message", 2);
+        }
+        
     }//GEN-LAST:event_btnEditRegisterActionPerformed
 
     private void btnPatientRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPatientRegisterActionPerformed
         // TODO add your handling code here:
-        String Firstname = txtPatientFirstname.getText();
-        String Lastname = txtPatientLastname.getText();
-        String Phone = txtPatientPhone.getText();
-        String Address  = txtPatientAddress.getText();
-        int NationalID = Integer.parseInt(txtPatientNationalID.getText());
         
-        if(checkRegistertext() == true){
+        try{
+            if(checkPatientRegistertext() == true){
+            String Firstname = txtPatientFirstname.getText();
+            String Lastname = txtPatientLastname.getText();
+            String Phone = txtPatientPhone.getText();
+            String Address  = txtPatientAddress.getText();
+            int NationalID = Integer.parseInt(txtPatientNationalID.getText());
             
 
             try{
-
-                PreparedStatement ps = DBconnection.con.prepareStatement("INSERT INTO `user` (`National_ID`, `Firstname`, `Lastname`, `Phonenumber`, `Address`) VALUES (?,?,?,?,?)");
+                
+                PreparedStatement ps = DBconnection.con.prepareStatement("INSERT INTO `patient` (`National_ID`, `Firstname`, `Lastname`, `Phonenumber`, `Address`) VALUES (?,?,?,?,?)");
                 
                 ps.setInt(1, NationalID);
                 ps.setString(2,Firstname);
@@ -1751,20 +2218,222 @@ public class Home extends javax.swing.JFrame {
             }
 
         }
+        else{
+            JOptionPane.showMessageDialog(null, "Please fill the Registeration form", "Message", 2);
+        }
+            
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(null, "Please only fill a number in NationalD", "Message", 2);
+        }
     }//GEN-LAST:event_btnPatientRegisterActionPerformed
 
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
         // TODO add your handling code here:
+        String Slecteditem = (String) cmbUser.getSelectedItem();
+        int ID = HashMapcmbUser.get(Slecteditem);
+        
+        try {
+           Statement st = DBconnection.getConnection().createStatement();
+           ResultSet rs = st.executeQuery("SELECT * FROM `user` WHERE `ID` = " + ID);
+           
+           while(rs.next())
+           {
+               txtEFirstname.setText(rs.getString(4));
+               txtELastname.setText(rs.getString(5));
+               txtEEmail.setText(rs.getString(2));
+            }
+        } catch (Exception e) {
+           e.printStackTrace();
+        }
+        
     }//GEN-LAST:event_btnSearchActionPerformed
 
     private void btnRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveActionPerformed
         // TODO add your handling code here:
+        String Slecteditem = (String) cmbUser.getSelectedItem();
+        int ID = HashMapcmbUser.get(Slecteditem);
+        
+        try {
+            
+            Statement st = DBconnection.getConnection().createStatement();
+            int i = st.executeUpdate("DELETE FROM `user` WHERE `user`.`ID` = " + ID);
+            
+            JOptionPane.showMessageDialog(null, "Delete completed.. ", "Delete Message", 2);
+            
+        } catch (Exception e) {
+           e.printStackTrace();
+        }
     }//GEN-LAST:event_btnRemoveActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         // TODO add your handling code here:
+        String Slecteditem = (String) cmbUser.getSelectedItem();
+        int ID = HashMapcmbUser.get(Slecteditem);
         
+        if(checkEdittext() == true){
+            
+            try {
+                
+                PreparedStatement ps = DBconnection.con.prepareStatement("UPDATE `user` SET `Email` =?, `name` =?, `Lastname` =?  WHERE `user`.`ID` = " + ID);
+
+                ps.setString(1 , txtEEmail.getText());
+                ps.setString(2 ,txtEFirstname.getText());
+                ps.setString(3 ,txtELastname.getText());
+                
+                ps.executeUpdate();
+            
+                JOptionPane.showMessageDialog(null, "Update completed. ", "Delete Message", 2);
+                
+                txtEEmail.setText("");
+                txtEFirstname.setText("");
+                txtELastname.setText("");
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        else{
+            JOptionPane.showMessageDialog(null, "Delete completed.. ", "Delete Message", 2);
+        }
     }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void btnPatientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPatientActionPerformed
+        // TODO add your handling code here:
+        cardLayout.show(pnlCards, "Patient");
+    }//GEN-LAST:event_btnPatientActionPerformed
+
+    private void btnEditSelectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditSelectActionPerformed
+        // TODO add your handling code here:
+        cmbList.removeAllItems();
+        cmbList.addItem("");
+        String selection = (String) cmbCatagorie.getSelectedItem();
+        
+        try {
+           Statement st = DBconnection.getConnection().createStatement();
+           ResultSet rs = st.executeQuery("SELECT * FROM  `" + selection +"` ");
+           
+           while(rs.next())
+           {
+               String Name = rs.getString(2) + " " + rs.getString(3);
+               int ID = rs.getInt(1);
+               HashMapcmbEPD.put(Name, ID);
+               cmbList.addItem(Name);
+               
+           }
+        } catch (Exception e) {
+           e.printStackTrace();
+        }
+        
+        
+    }//GEN-LAST:event_btnEditSelectActionPerformed
+
+    private void btnEditPDMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnEditPDMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnEditPDMouseClicked
+
+    private void btnEditPDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditPDActionPerformed
+        // TODO add your handling code here:
+        cardLayout.show(pnlCards, "EditPD");
+    }//GEN-LAST:event_btnEditPDActionPerformed
+
+    private void btnEPDSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEPDSearchActionPerformed
+        // TODO add your handling code here:
+        String selection2 = (String) cmbList.getSelectedItem();
+        String selection1 = (String) cmbCatagorie.getSelectedItem();
+        int ID = HashMapcmbEPD.get(selection2);
+        
+        try {
+           Statement st = DBconnection.getConnection().createStatement();
+           ResultSet rs = st.executeQuery("SELECT * FROM  `" + selection1 + "` WHERE `National_ID` ='" + ID + "'");
+           
+           while(rs.next())
+           {
+              System.out.println("INPUTING TEXT TO COMBOBOX"); 
+              txtEPDFirstname.setText(rs.getString(2));
+              txtEPDLastname.setText(rs.getString(3));
+              txtEPDPhone.setText(rs.getString(4));
+              txtEPDNationalID.setText(rs.getString(1));
+              txtEPDAddress.setText(rs.getString(5));
+               
+               
+           }
+           System.out.println("INPUTING TEXT DONE");
+        } catch (Exception e) {
+           e.printStackTrace();
+        }
+        
+        
+        
+    }//GEN-LAST:event_btnEPDSearchActionPerformed
+
+    private void btnEPDClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEPDClearActionPerformed
+        // TODO add your handling code here:
+        cmbList.removeAllItems();
+        txtEPDFirstname.setText("");
+        txtEPDLastname.setText("");
+        txtEPDPhone.setText("");
+        txtEPDNationalID.setText("");
+        txtEPDAddress.setText("");
+    }//GEN-LAST:event_btnEPDClearActionPerformed
+
+    private void btnAConfirmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAConfirmActionPerformed
+        
+       java.sql.Date sqldate = new java.sql.Date(jDateChooser1.getDate().getTime());
+       
+
+       try{
+           PreparedStatement ps = DBconnection.con.prepareStatement("INSERT INTO `reserve` (`Doctor_ID`, `Patient_ID`, `Date`) VALUES (?,?,?)");
+           
+           ps.setInt(1, HashMapcmbAPatient.get(cmbAPatient.getSelectedItem()));
+           ps.setInt(2, HashMapcmbADoctor.get(cmbADoctor.getSelectedItem()));
+           ps.setDate(3, sqldate);
+                
+                
+
+           int ii= ps.executeUpdate();
+           System.out.println(ii + " records affected"); // LOG
+           JOptionPane.showMessageDialog(null, "Your registeration has been added. ", "Registration Completed (Patient)", 2);
+
+        }catch(HeadlessException | SQLException e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_btnAConfirmActionPerformed
+
+    private void btnASearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnASearchActionPerformed
+        // TODO add your handling code here:
+        cmbAPatient.removeAllItems();
+        cmbADoctor.removeAllItems();
+        cmbAPatient();
+        cmbADoctor();
+    }//GEN-LAST:event_btnASearchActionPerformed
+
+    private void btnAConfirm1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAConfirm1ActionPerformed
+        // TODO add your handling code here:
+        JOptionPane.showMessageDialog(null, "This Function is not avaliable yet!!! added. ", "Error", 2);
+    }//GEN-LAST:event_btnAConfirm1ActionPerformed
+
+    private void btnEASearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEASearchActionPerformed
+        // TODO add your handling code here:
+        int ID = HashMapcmbAEPD.get((String) cmbAList.getSelectedItem());
+        
+        try {
+           Statement st = DBconnection.getConnection().createStatement();
+           ResultSet rs = st.executeQuery("SELECT reserve.reserve_id, patient.National_ID,patient.FirstName, patient.Lastname, doctor.Firstname, doctor.Lastname, reserve.Date FROM ((reserve INNER JOIN doctor ON reserve.Doctor_ID = doctor.Doctor_ID) INNER JOIN patient ON patient.Patient_ID = patient.Patient_ID) WHERE reserve.reserve_id="+ID);
+           
+           while(rs.next())
+           {
+              System.out.println("INPUTING TEXT TO COMBOBOX"); 
+              cmbEAPatient.setSelectedItem(rs.getString(3) + " " + rs.getString(4));
+              cmbEAPatient.setSelectedItem(rs.getString(5) + " " + rs.getString(6));
+              jDateChooser2.setDate(rs.getDate(7));
+                
+           }
+           System.out.println("INPUTING TEXT DONE");
+        } catch (Exception e) {
+           e.printStackTrace();
+        }
+        
+    }//GEN-LAST:event_btnEASearchActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1803,18 +2472,24 @@ public class Home extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Appointment;
-    private javax.swing.JComboBox<String> ComboCatagorie;
-    private javax.swing.JComboBox<String> ComboItem;
     private javax.swing.JPanel Doctor;
     private javax.swing.JPanel EditPatient;
     private javax.swing.JPanel Menu;
     private javax.swing.JPanel Overview;
     private javax.swing.JPanel Patient;
     private javax.swing.JPanel User;
+    private keeptoo.KButton btnAConfirm;
+    private keeptoo.KButton btnAConfirm1;
+    private keeptoo.KButton btnASearch;
     private keeptoo.KButton btnAppointment;
     private keeptoo.KButton btnDoctor;
     private keeptoo.KButton btnDoctorRegister;
+    private keeptoo.KButton btnEASearch;
+    private keeptoo.KButton btnEPDClear;
+    private keeptoo.KButton btnEPDSearch;
+    private keeptoo.KButton btnEditPD;
     private keeptoo.KButton btnEditRegister;
+    private keeptoo.KButton btnEditSelect;
     private keeptoo.KButton btnExit;
     private keeptoo.KButton btnMinimize;
     private keeptoo.KButton btnOverview;
@@ -1826,9 +2501,17 @@ public class Home extends javax.swing.JFrame {
     private keeptoo.KButton btnSearch;
     private keeptoo.KButton btnUser;
     private keeptoo.KButton btnUserRegister;
+    private javax.swing.JComboBox<String> cmbADoctor;
+    private javax.swing.JComboBox<String> cmbAList;
+    private javax.swing.JComboBox<String> cmbAPatient;
+    private javax.swing.JComboBox<String> cmbCatagorie;
+    private javax.swing.JComboBox<String> cmbEADoctor;
+    private javax.swing.JComboBox<String> cmbEAPatient;
+    private javax.swing.JComboBox<String> cmbList;
     private javax.swing.JComboBox<String> cmbUser;
+    private com.toedter.calendar.JDateChooser jDateChooser1;
+    private com.toedter.calendar.JDateChooser jDateChooser2;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
@@ -1869,19 +2552,25 @@ public class Home extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel45;
     private javax.swing.JLabel jLabel46;
     private javax.swing.JLabel jLabel47;
+    private javax.swing.JLabel jLabel48;
+    private javax.swing.JLabel jLabel49;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel50;
+    private javax.swing.JLabel jLabel51;
+    private javax.swing.JLabel jLabel52;
+    private javax.swing.JLabel jLabel53;
+    private javax.swing.JLabel jLabel54;
+    private javax.swing.JLabel jLabel55;
+    private javax.swing.JLabel jLabel56;
+    private javax.swing.JLabel jLabel57;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JLabel jLabell;
     private javax.swing.JLayeredPane jLayeredPane1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSplitPane jSplitPane1;
-    private javax.swing.JTextArea jTextArea2;
-    private keeptoo.KButton kButton1;
-    private keeptoo.KButton kButton2;
     private keeptoo.KButton kButton9;
     private keeptoo.KGradientPanel kGradientPanel1;
     private keeptoo.KGradientPanel kGradientPanel10;
@@ -1909,6 +2598,9 @@ public class Home extends javax.swing.JFrame {
     private keeptoo.KGradientPanel kGradientPanel7;
     private keeptoo.KGradientPanel kGradientPanel8;
     private keeptoo.KGradientPanel kGradientPanel9;
+    private javax.swing.JLabel lblA;
+    private javax.swing.JLabel lblD;
+    private javax.swing.JLabel lblP;
     private javax.swing.JPanel pnlCards;
     private javax.swing.JTextArea txtDoctorAdresses;
     private javax.swing.JTextField txtDoctorFirstname;
@@ -1918,6 +2610,11 @@ public class Home extends javax.swing.JFrame {
     private javax.swing.JTextField txtEEmail;
     private javax.swing.JTextField txtEFirstname;
     private javax.swing.JTextField txtELastname;
+    private javax.swing.JTextArea txtEPDAddress;
+    private javax.swing.JTextField txtEPDFirstname;
+    private javax.swing.JTextField txtEPDLastname;
+    private javax.swing.JTextField txtEPDNationalID;
+    private javax.swing.JTextField txtEPDPhone;
     private javax.swing.JTextField txtEmail;
     private javax.swing.JTextField txtEmail1;
     private javax.swing.JTextField txtEmail2;
@@ -1927,12 +2624,8 @@ public class Home extends javax.swing.JFrame {
     private javax.swing.JPasswordField txtPassword;
     private javax.swing.JTextArea txtPatientAddress;
     private javax.swing.JTextField txtPatientFirstname;
-    private javax.swing.JTextField txtPatientFirstname1;
     private javax.swing.JTextField txtPatientLastname;
-    private javax.swing.JTextField txtPatientLastname1;
     private javax.swing.JTextField txtPatientNationalID;
-    private javax.swing.JTextField txtPatientNationalID1;
     private javax.swing.JTextField txtPatientPhone;
-    private javax.swing.JTextField txtPatientPhone1;
     // End of variables declaration//GEN-END:variables
 }

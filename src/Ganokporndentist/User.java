@@ -464,6 +464,7 @@ public class User extends javax.swing.JPanel {
                 }
             
         }
+        
     }//GEN-LAST:event_btnRegisterActionPerformed
 
 
